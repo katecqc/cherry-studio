@@ -1,4 +1,4 @@
-import { BarsOutlined, SettingOutlined } from '@ant-design/icons'
+import { BarsOutlined } from '@ant-design/icons'
 import AddAssistantPopup from '@renderer/components/Popups/AddAssistantPopup'
 import { useAssistants, useDefaultAssistant } from '@renderer/hooks/useAssistant'
 import { useSettings } from '@renderer/hooks/useSettings'
@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
 import Assistants from './AssistantsTab'
-import Settings from './SettingsTab'
 import Topics from './TopicsTab'
 
 interface Props {
@@ -23,13 +22,13 @@ interface Props {
   position: 'left' | 'right'
 }
 
-type Tab = 'assistants' | 'topic' | 'settings'
+type Tab = 'topic' | 'assistants' | 'settings'
 
 let _tab: any = ''
 
 const HomeTabs: FC<Props> = ({ activeAssistant, activeTopic, setActiveAssistant, setActiveTopic, position }) => {
   const { addAssistant } = useAssistants()
-  const [tab, setTab] = useState<Tab>(position === 'left' ? _tab || 'assistants' : 'topic')
+  const [tab, setTab] = useState<Tab>(position === 'left' ? _tab : 'topic')
   const { topicPosition } = useSettings()
   const { defaultAssistant } = useDefaultAssistant()
   const { toggleShowTopics } = useShowTopics()
@@ -46,10 +45,10 @@ const HomeTabs: FC<Props> = ({ activeAssistant, activeTopic, setActiveAssistant,
 
   const showTab = !(position === 'left' && topicPosition === 'right')
 
-  const assistantTab = {
-    label: t('assistants.abbr'),
-    value: 'assistants',
-    icon: <i className="iconfont icon-business-smart-assistant" />
+  const topicTab = {
+    label: t('common.topics'),
+    value: 'topic',
+    icon: <BarsOutlined />
   }
 
   const onCreateAssistant = async () => {
@@ -107,21 +106,11 @@ const HomeTabs: FC<Props> = ({ activeAssistant, activeTopic, setActiveAssistant,
             gap: 2
           }}
           options={
-            [
-              position === 'left' && topicPosition === 'left' ? assistantTab : undefined,
-              {
-                label: t('common.topics'),
-                value: 'topic',
-                icon: <BarsOutlined />
-              },
-              {
-                label: t('settings.title'),
-                value: 'settings',
-                icon: <SettingOutlined />
-              }
-            ].filter(Boolean) as SegmentedProps['options']
+            [position === 'left' && topicPosition === 'left' ? topicTab : undefined].filter(
+              Boolean
+            ) as SegmentedProps['options']
           }
-          onChange={(value) => setTab(value as 'topic' | 'settings')}
+          onChange={(value) => setTab(value as 'topic')}
           block
         />
       )}
@@ -137,7 +126,6 @@ const HomeTabs: FC<Props> = ({ activeAssistant, activeTopic, setActiveAssistant,
         {tab === 'topic' && (
           <Topics assistant={activeAssistant} activeTopic={activeTopic} setActiveTopic={setActiveTopic} />
         )}
-        {tab === 'settings' && <Settings assistant={activeAssistant} />}
       </TabContent>
     </Container>
   )

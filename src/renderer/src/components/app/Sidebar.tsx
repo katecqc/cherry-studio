@@ -1,16 +1,8 @@
-import {
-  FileSearchOutlined,
-  FolderOutlined,
-  PictureOutlined,
-  QuestionCircleOutlined,
-  TranslationOutlined
-} from '@ant-design/icons'
 import { isMac } from '@renderer/config/constant'
-import { AppLogo, isLocalAi, UserAvatar } from '@renderer/config/env'
-import { useTheme } from '@renderer/context/ThemeProvider'
+import { UserAvatar } from '@renderer/config/env'
 import useAvatar from '@renderer/hooks/useAvatar'
 import { useMinapps } from '@renderer/hooks/useMinapps'
-import { modelGenerating, useRuntime } from '@renderer/hooks/useRuntime'
+import { useRuntime } from '@renderer/hooks/useRuntime'
 import { useSettings } from '@renderer/hooks/useSettings'
 import type { MenuProps } from 'antd'
 import { Tooltip } from 'antd'
@@ -27,13 +19,9 @@ import MinApp from '../MinApp'
 import UserPopup from '../Popups/UserPopup'
 
 const Sidebar: FC = () => {
-  const { pathname } = useLocation()
   const avatar = useAvatar()
   const { minappShow } = useRuntime()
-  const { t } = useTranslation()
-  const navigate = useNavigate()
   const { windowStyle, sidebarIcons } = useSettings()
-  const { theme, toggleTheme } = useTheme()
   const { pinned } = useMinapps()
 
   const onEditUser = () => UserPopup.show()
@@ -42,20 +30,6 @@ const Sidebar: FC = () => {
   const sidebarBgColor = macTransparentWindow ? 'transparent' : 'var(--navbar-background)'
 
   const showPinnedApps = pinned.length > 0 && sidebarIcons.visible.includes('minapp')
-
-  const to = async (path: string) => {
-    await modelGenerating()
-    navigate(path)
-  }
-
-  const onOpenDocs = () => {
-    MinApp.start({
-      id: 'docs',
-      name: t('docs.title'),
-      url: 'https://docs.cherry-ai.com/',
-      logo: AppLogo
-    })
-  }
 
   return (
     <Container
@@ -78,37 +52,6 @@ const Sidebar: FC = () => {
           </AppsContainer>
         )}
       </MainMenusContainer>
-      <Menus>
-        <Tooltip title={t('docs.title')} mouseEnterDelay={0.8} placement="right">
-          <Icon
-            onClick={onOpenDocs}
-            className={minappShow && MinApp.app?.url === 'https://docs.cherry-ai.com/' ? 'active' : ''}>
-            <QuestionCircleOutlined />
-          </Icon>
-        </Tooltip>
-        <Tooltip title={t('settings.theme.title')} mouseEnterDelay={0.8} placement="right">
-          <Icon onClick={() => toggleTheme()}>
-            {theme === 'dark' ? (
-              <i className="iconfont icon-theme icon-dark1" />
-            ) : (
-              <i className="iconfont icon-theme icon-theme-light" />
-            )}
-          </Icon>
-        </Tooltip>
-        <Tooltip title={t('settings.title')} mouseEnterDelay={0.8} placement="right">
-          <StyledLink
-            onClick={async () => {
-              if (minappShow) {
-                await MinApp.close()
-              }
-              await to(isLocalAi ? '/settings/assistant' : '/settings/provider')
-            }}>
-            <Icon className={pathname.startsWith('/settings') && !minappShow ? 'active' : ''}>
-              <i className="iconfont icon-setting" />
-            </Icon>
-          </StyledLink>
-        </Tooltip>
-      </Menus>
     </Container>
   )
 }
@@ -124,23 +67,11 @@ const MainMenus: FC = () => {
   const isRoutes = (path: string): string => (pathname.startsWith(path) && !minappShow ? 'active' : '')
 
   const iconMap = {
-    assistants: <i className="iconfont icon-chat" />,
-    agents: <i className="iconfont icon-business-smart-assistant" />,
-    paintings: <PictureOutlined style={{ fontSize: 16 }} />,
-    translate: <TranslationOutlined />,
-    minapp: <i className="iconfont icon-appstore" />,
-    knowledge: <FileSearchOutlined />,
-    files: <FolderOutlined />
+    assistants: <i className="iconfont icon-chat" />
   }
 
   const pathMap = {
-    assistants: '/',
-    agents: '/agents',
-    paintings: '/paintings',
-    translate: '/translate',
-    minapp: '/apps',
-    knowledge: '/knowledge',
-    files: '/files'
+    assistants: '/'
   }
 
   return sidebarIcons.visible.map((icon) => {

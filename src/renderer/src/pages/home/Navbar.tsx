@@ -1,18 +1,14 @@
-import { FormOutlined, SearchOutlined } from '@ant-design/icons'
+import { FormOutlined } from '@ant-design/icons'
 import { Navbar, NavbarLeft, NavbarRight } from '@renderer/components/app/Navbar'
 import { HStack } from '@renderer/components/Layout'
-import MinAppsPopover from '@renderer/components/Popups/MinAppsPopover'
 import SearchPopup from '@renderer/components/Popups/SearchPopup'
 import { isMac, isWindows } from '@renderer/config/constant'
 import { useAssistant } from '@renderer/hooks/useAssistant'
-import { modelGenerating } from '@renderer/hooks/useRuntime'
 import { useSettings } from '@renderer/hooks/useSettings'
 import { useShortcut } from '@renderer/hooks/useShortcuts'
 import { useShowAssistants, useShowTopics } from '@renderer/hooks/useStore'
 import AssistantSettingsPopup from '@renderer/pages/settings/AssistantSettings'
 import { EVENT_NAMES, EventEmitter } from '@renderer/services/EventService'
-import { useAppDispatch } from '@renderer/store'
-import { setNarrowMode } from '@renderer/store/settings'
 import { Assistant, Topic } from '@renderer/types'
 import { FC } from 'react'
 import styled from 'styled-components'
@@ -28,9 +24,8 @@ interface Props {
 const HeaderNavbar: FC<Props> = ({ activeAssistant }) => {
   const { assistant } = useAssistant(activeAssistant.id)
   const { showAssistants, toggleShowAssistants } = useShowAssistants()
-  const { topicPosition, sidebarIcons, narrowMode } = useSettings()
+  const { topicPosition } = useSettings()
   const { showTopics, toggleShowTopics } = useShowTopics()
-  const dispatch = useAppDispatch()
 
   useShortcut('toggle_show_assistants', () => {
     toggleShowAssistants()
@@ -47,11 +42,6 @@ const HeaderNavbar: FC<Props> = ({ activeAssistant }) => {
   useShortcut('search_message', () => {
     SearchPopup.show()
   })
-
-  const handleNarrowModeToggle = async () => {
-    await modelGenerating()
-    dispatch(setNarrowMode(!narrowMode))
-  }
 
   return (
     <Navbar className="home-navbar">
@@ -83,19 +73,6 @@ const HeaderNavbar: FC<Props> = ({ activeAssistant }) => {
           <SelectModelButton assistant={assistant} />
         </HStack>
         <HStack alignItems="center" gap={8}>
-          <NarrowIcon onClick={() => SearchPopup.show()}>
-            <SearchOutlined />
-          </NarrowIcon>
-          <NarrowIcon onClick={handleNarrowModeToggle}>
-            <i className="iconfont icon-icon-adaptive-width"></i>
-          </NarrowIcon>
-          {sidebarIcons.visible.includes('minapp') && (
-            <MinAppsPopover>
-              <NarrowIcon>
-                <i className="iconfont icon-appstore" />
-              </NarrowIcon>
-            </MinAppsPopover>
-          )}
           {topicPosition === 'right' && (
             <NarrowIcon onClick={toggleShowTopics}>
               <i className={`iconfont icon-${showTopics ? 'show' : 'hide'}-sidebar`} />

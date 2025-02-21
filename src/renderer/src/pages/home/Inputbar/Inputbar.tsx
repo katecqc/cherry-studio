@@ -9,7 +9,6 @@ import {
   QuestionCircleOutlined
 } from '@ant-design/icons'
 import { PicCenterOutlined } from '@ant-design/icons'
-import TranslateButton from '@renderer/components/TranslateButton'
 import { isVisionModel, isWebSearchModel } from '@renderer/config/models'
 import db from '@renderer/databases'
 import { useAssistant } from '@renderer/hooks/useAssistant'
@@ -40,7 +39,6 @@ import NarrowLayout from '../Messages/NarrowLayout'
 import AttachmentButton from './AttachmentButton'
 import AttachmentPreview from './AttachmentPreview'
 import KnowledgeBaseButton from './KnowledgeBaseButton'
-import MentionModelsButton from './MentionModelsButton'
 import MentionModelsInput from './MentionModelsInput'
 import SendMessageButton from './SendMessageButton'
 import TokenCount from './TokenCount'
@@ -400,11 +398,6 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
     })
   }
 
-  const onTranslated = (translatedText: string) => {
-    setText(translatedText)
-    setTimeout(() => resizeTextArea(), 0)
-  }
-
   useShortcut('new_topic', () => {
     if (!generating) {
       addNewTopic()
@@ -472,23 +465,6 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
     setSelectedKnowledgeBases(bases ?? [])
   }
 
-  const onMentionModel = (model: Model) => {
-    const textArea = textareaRef.current?.resizableTextArea?.textArea
-    if (textArea) {
-      const cursorPosition = textArea.selectionStart
-      const textBeforeCursor = text.substring(0, cursorPosition)
-      const lastAtIndex = textBeforeCursor.lastIndexOf('@')
-
-      if (lastAtIndex !== -1) {
-        const newText = text.substring(0, lastAtIndex) + text.substring(cursorPosition)
-        setText(newText)
-      }
-
-      setMentionModels((prev) => [...prev, model])
-      setIsMentionPopupOpen(false)
-    }
-  }
-
   const handleRemoveModel = (model: Model) => {
     setMentionModels(mentionModels.filter((m) => m.id !== model.id))
   }
@@ -536,11 +512,6 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
                   <FormOutlined />
                 </ToolbarButton>
               </Tooltip>
-              <MentionModelsButton
-                mentionModels={mentionModels}
-                onMentionModel={onMentionModel}
-                ToolbarButton={ToolbarButton}
-              />
               {isWebSearchModel(model) && (
                 <Tooltip placement="top" title={t('chat.input.web_search')} arrow>
                   <ToolbarButton
@@ -603,7 +574,6 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
               />
             </ToolbarMenu>
             <ToolbarMenu>
-              <TranslateButton text={text} onTranslated={onTranslated} isLoading={isTranslating} />
               {generating && (
                 <Tooltip placement="top" title={t('chat.input.pause')} arrow>
                   <ToolbarButton type="text" onClick={onPause} style={{ marginRight: -2, marginTop: 1 }}>
